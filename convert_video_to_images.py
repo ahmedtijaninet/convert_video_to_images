@@ -3,9 +3,6 @@ import time
 import cv2
 import os
 from datetime import datetime
-
-
-
 def extract_frames(video_path):
     # Create folder name with current date and time
     folder_name = datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
