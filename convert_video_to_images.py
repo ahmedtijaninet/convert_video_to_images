@@ -1,31 +1,47 @@
 import sys
+import time
 import cv2
 import os
 from datetime import datetime
 
-# Get the video file from the command line argument
-video_file = sys.argv[1]
 
-# Create a datetime object containing the current date and time
-now = datetime.now()
 
-# Create a new directory with the date and time as the name
-directory = now.strftime("%Y%m%d-%H%M%S")
-os.mkdir(directory)
+def extract_frames(video_path):
+    # Create folder name with current date and time
+    folder_name = datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
+    os.makedirs(folder_name)
 
-# Open the video file
-video = cv2.VideoCapture(video_file)
+    # Open video file
+    vidcap = cv2.VideoCapture(video_path)
 
-# Read the first frame
-success, frame = video.read()
+    # Initialize frame count
+    frame_count = 0
 
-# Enter a while loop to read the remaining frames
-while success:
-    # Save the frame as an image file in the new directory
-    cv2.imwrite(os.path.join(directory, str(video.get(cv2.CAP_PROP_POS_FRAMES)) + ".jpg"), frame)
-    
-    # Print a message indicating whether or not a new frame was successfully read
-    print("Frame #{} successfully read".format(video.get(cv2.CAP_PROP_POS_FRAMES)))
-    
-    # Read the next frame
-    success, frame = video.read()
+    # Get total frame count
+    total_frame_count = vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
+
+    # Iterate over frames in video
+    while True:
+        success, image = vidcap.read()
+        if not success:
+            break
+        # Save frame as image
+        cv2.imwrite(f"{folder_name}/{frame_count}.jpg", image)
+        
+        # Print progress
+        percentage = (frame_count / total_frame_count) * 100
+        sys.stdout.write("[")
+        for i in range(int(percentage)):
+            sys.stdout.write("=")
+        sys.stdout.write("]")
+        sys.stdout.write(f" {int(round(percentage))}%")
+        sys.stdout.flush()
+        sys.stdout.write("\r")
+        time.sleep(0.01)
+        frame_count += 1
+
+# Get video path from command line argument
+video_path = sys.argv[1]
+
+# Extract frames from video
+extract_frames(video_path)
